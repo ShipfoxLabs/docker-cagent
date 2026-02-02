@@ -28,14 +28,15 @@ jobs:
           go-version: "1.25.6"
           cache: false
 
-      - name: Set Go cache variables (Linux/macOS)
+      - name: Set Go cache variables
         if: runner.os != 'Windows'
         run: |
           echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
           echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        id: go-cache-restore
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -48,7 +49,8 @@ jobs:
           version: v2.8
 
       - name: Save Go cache
-        uses: actions/cache/save@v5
+        if: steps.go-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -67,14 +69,15 @@ jobs:
           go-version: "1.25.6"
           cache: false
 
-      - name: Set Go cache variables (Linux/macOS)
+      - name: Set Go cache variables
         if: runner.os != 'Windows'
         run: |
           echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
           echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        id: go-cache-restore
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -90,7 +93,8 @@ jobs:
         run: task test
 
       - name: Save Go cache
-        uses: actions/cache/save@v5
+        if: steps.go-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -129,14 +133,15 @@ jobs:
           go-version: "1.25.6"
           cache: false
 
-      - name: Set Go cache variables (Linux/macOS)
+      - name: Set Go cache variables
         if: runner.os != 'Windows'
         run: |
           echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
           echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        id: go-cache-restore
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -155,7 +160,8 @@ jobs:
         run: task build
 
       - name: Save Go cache
-        uses: actions/cache/save@v5
+        if: steps.go-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -202,5 +208,3 @@ jobs:
           build-args: |
             GIT_TAG=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
