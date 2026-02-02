@@ -34,7 +34,7 @@ jobs:
           version: v2.8
 
   test:
-    runs-on: shipfox-2vcpu-ubuntu-2404 # fake comment to trigger a CI run on a new commit #1
+    runs-on: shipfox-2vcpu-ubuntu-2404 # fake comment to trigger a CI run on a new commit #2
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
