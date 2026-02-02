@@ -57,18 +57,10 @@ jobs:
           path: |
             ${{ env.GO_MOD_CACHE }}
             ${{ env.GO_BUILD_CACHE }}
-          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
       - name: Pre-download Go modules and test dependencies to populate the cache
         run: go mod download all
-
-      - name: Save Go cache
-        uses: actions/cache/save@v5
-        with:
-          path: |
-            ${{ env.GO_MOD_CACHE }}
-            ${{ env.GO_BUILD_CACHE }}
-          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}
 
       - name: Install Task
         uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
@@ -77,6 +69,15 @@ jobs:
 
       - name: Run tests
         run: task test
+
+      - name: Save Go cache
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
+
 
   license-check:
     runs-on: shipfox-2vcpu-ubuntu-2404
