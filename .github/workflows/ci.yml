@@ -26,12 +26,34 @@ jobs:
         uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5  # v6.2.0
         with:
           go-version: "1.25.6"
-          cache: true
+          cache: false
+
+      - name: Set Go cache variables (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
+          echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
       - name: Lint
         uses: golangci/golangci-lint-action@e7fa5ac41e1cf5b7d48e45e42232ce7ada589601 # v9.1.0
         with:
           version: v2.8
+
+      - name: Save Go cache
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
   test:
     runs-on: shipfox-2vcpu-ubuntu-2404 # fake comment to trigger a CI run on a new commit #10
@@ -89,13 +111,35 @@ jobs:
         uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5  # v6.2.0
         with:
           go-version: "1.25.6"
-          cache: true
+          cache: false
+
+      - name: Set Go cache variables (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
+          echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
       - name: Install go-licences
         run: go install github.com/google/go-licenses@latest
 
       - name: Check licenses
         run: go-licenses check . --allowed_licenses=Apache-2.0,MIT,BSD-3-Clause,BSD-2-Clause --ignore modernc.org/mathutil
+
+      - name: Save Go cache
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
   build:
     needs: [lint, test, license-check]
@@ -108,7 +152,21 @@ jobs:
         uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5  # v6.2.0
         with:
           go-version: "1.25.6"
-          cache: true
+          cache: false
+
+      - name: Set Go cache variables (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
+          echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
       - name: Install Task
         uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
@@ -120,6 +178,14 @@ jobs:
 
       - name: Build
         run: task build
+
+      - name: Save Go cache
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
   build-image:
     needs: [lint, test, license-check]
