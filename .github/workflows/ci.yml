@@ -51,7 +51,7 @@ jobs:
           version: 3.x
 
       - name: Run tests
-        run: task test
+        run: task test -- count=1 -p 3 -parallel 3
 
   license-check:
     runs-on: shipfox-2vcpu-ubuntu-2404
