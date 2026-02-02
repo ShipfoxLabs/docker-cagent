@@ -195,16 +195,41 @@ jobs:
             type=edge
             type=ref,event=pr
 
-      - name: Go Build Cache for Docker
-        uses: actions/cache@v4
+      - name: Cache go-pkg-mod
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: go-pkg-mod
+          key: go-pkg-mod-${{ hashFiles('Dockerfile') }}
+
+      - name: Inject go-pkg-mod into Docker
+        uses: reproducible-containers/buildkit-cache-dance@4b2444fec0c0fb9dbf175a96c094720a692ef810 # v2.1.4
+        with:
+          cache-source: go-pkg-mod
+          cache-target: /go/pkg/mod
+
+      - name: Cache go-build-cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: go-build-cache
-          key: ${{ runner.os }}-go-build-cache-${{ hashFiles('**/go.sum') }}
+          key: go-build-cache-${{ hashFiles('Dockerfile') }}
 
-      - name: Inject go-build-cache
+      - name: Inject go-build-cache into Docker
         uses: reproducible-containers/buildkit-cache-dance@4b2444fec0c0fb9dbf175a96c094720a692ef810 # v2.1.4
         with:
           cache-source: go-build-cache
+          cache-target: /root/.cache/go-build
+
+      - name: Cache apk-cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: apk-cache
+          key: apk-cache-${{ hashFiles('Dockerfile') }}
+
+      - name: Inject apk-cache into Docker
+        uses: reproducible-containers/buildkit-cache-dance@4b2444fec0c0fb9dbf175a96c094720a692ef810 # v2.1.4
+        with:
+          cache-source: apk-cache
+          cache-target: /var/cache/apk
 
       - name: Build and push image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
