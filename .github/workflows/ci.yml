@@ -45,6 +45,9 @@ jobs:
           go-version: "1.25.6"
           cache: true
 
+      - name: Pre-download Go modules and test dependencies to populate the cache
+        run: go mod download all
+
       - name: Install Task
         uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
         with:
