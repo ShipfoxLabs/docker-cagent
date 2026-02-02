@@ -34,9 +34,9 @@ jobs:
           echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
           echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
 
-      - name: Restore Go cache
-        id: go-cache-restore
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Go cache
+        id: go-cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -47,15 +47,6 @@ jobs:
         uses: golangci/golangci-lint-action@e7fa5ac41e1cf5b7d48e45e42232ce7ada589601 # v9.1.0
         with:
           version: v2.8
-
-      - name: Save Go cache
-        if: steps.go-cache-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
-        with:
-          path: |
-            ${{ env.GO_MOD_CACHE }}
-            ${{ env.GO_BUILD_CACHE }}
-          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
   test:
     runs-on: shipfox-2vcpu-ubuntu-2404 # fake comment to trigger a CI run on a new commit #14
@@ -70,14 +61,12 @@ jobs:
           cache: false
 
       - name: Set Go cache variables
-        if: runner.os != 'Windows'
         run: |
           echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
           echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
 
-      - name: Restore Go cache
-        id: go-cache-restore
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Go cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -91,16 +80,6 @@ jobs:
 
       - name: Run tests
         run: task test
-
-      - name: Save Go cache
-        if: steps.go-cache-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
-        with:
-          path: |
-            ${{ env.GO_MOD_CACHE }}
-            ${{ env.GO_BUILD_CACHE }}
-          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
-
 
   license-check:
     runs-on: shipfox-2vcpu-ubuntu-2404
@@ -134,14 +113,12 @@ jobs:
           cache: false
 
       - name: Set Go cache variables
-        if: runner.os != 'Windows'
         run: |
           echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
           echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
 
-      - name: Restore Go cache
-        id: go-cache-restore
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      - name: Go cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ${{ env.GO_MOD_CACHE }}
@@ -158,15 +135,6 @@ jobs:
 
       - name: Build
         run: task build
-
-      - name: Save Go cache
-        if: steps.go-cache-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
-        with:
-          path: |
-            ${{ env.GO_MOD_CACHE }}
-            ${{ env.GO_BUILD_CACHE }}
-          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ env.ImageOS }}-go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.mod') }}-2
 
   build-image:
     needs: [lint, test, license-check]
